@@ -74,23 +74,57 @@ quienesAtiendenPorHorario(Dia,Horario,Personas):-
 
 %% PUNTO 5
 
+%venta(Vendedor,fecha(Dia,Numero,Mes),golosinas(Valor)).
+%venta(Vendedor,fecha(Dia,Numero,Mes),cigarrillos(Marcas)).
+%venta(Vendedor,fecha(Dia,Numero,Mes),bebida(Alcoholica,Cantidad)).
+% venta(dodain,fecha(lunes,10,agosto),golosinas(1200)).
+% venta(dodain,fecha(lunes,10,agosto),cigarrillos([jockey])).
+% venta(dodain,fecha(lunes,10,agosto),golosinas(50)).
+% venta(dodain,fecha(miercoles,12,agosto),bebida(alcoholica,8)).
+% venta(dodain,fecha(miercoles,12,agosto),bebida(no-alcoholica,1)).
+% venta(dodain,fecha(miercoles,12,agosto),golosinas(10)).
+% venta(martu,fecha(miercoles,12,agosto),golosinas(1000)).
+% venta(martu,fecha(miercoles,12,agosto),cigarrillos([chesterfield,colorado,parisiennes])).
+% venta(lucas,fecha(martes,11,agosto),golosinas(600)).
+% venta(lucas,fecha(martes,18,agosto),bebida(no-alcoholica,2)).
+% venta(lucas,fecha(martes,18,agosto),cigarrillos([derby])).
+
+%ventas(Persona,fecha(Dia,Numero,Mes),Ventas)
+ventas(dodain,fecha(lunes,10,agosto),[golosinas(1200),cigarrillos([jockey]),golosinas(50)]).
+ventas(dodain,fecha(miercoles,12,agosto),[bebida(alcoholica,8),bebida(no-alcoholica,1),golosinas(10)]).
+ventas(martu,fecha(miercoles,12,agosto),[golosinas(1000),cigarrillos([chesterfield,colorado,parisiennes])]).
+ventas(lucas,fecha(martes,11,agosto),[golosinas(600)]).
+ventas(lucas,fecha(martes,18,agosto),[bebida(no-alcoholica,2),cigarrillos([derby])]).
+
+esVendedorSuertudo(Persona):-
+    ventas(Persona,_,_),
+    forall(ventas(Persona,Fecha,_),laPrimeraVentaFueImportante(Persona,Fecha)).
+
+laPrimeraVentaFueImportante(Persona,Fecha):-
+    primeraVenta(Persona,Fecha,Venta),
+    esVentaImportante(Venta).
+
+primeraVenta(Persona,Fecha,PrimeraVenta):-
+    ventas(Persona,Fecha,[PrimeraVenta|_]).
+
+esVentaImportante(golosinas(Precio)):-
+    Precio>100.
+
+esVentaImportante(cigarrillos(Marcas)):-
+    length(Marcas,Cantidad),
+    Cantidad>2.
+
+esVentaImportante(bebida(alcoholica,_)).
+esVentaImportante(bebida(_,Cantidad)):-
+    Cantidad>5.
+
 /*
-En el kiosko tenemos por el momento tres ventas posibles:
-golosinas, en cuyo caso registramos el valor en plata
-cigarrillos, de los cuales registramos todas las marcas de cigarrillos que se vendieron (ej: Marlboro y Particulares)
-bebidas, en cuyo caso registramos si son alcohólicas y la cantidad
 
-Queremos agregar las siguientes cláusulas:
-dodain hizo las siguientes ventas el lunes 10 de agosto: golosinas por $ 1200, cigarrillos Jockey, golosinas por $ 50
-dodain hizo las siguientes ventas el miércoles 12 de agosto: 8 bebidas alcohólicas, 1 bebida no-alcohólica, golosinas por $ 10
-martu hizo las siguientes ventas el miercoles 12 de agosto: golosinas por $ 1000, cigarrillos Chesterfield, Colorado y Parisiennes.
-lucas hizo las siguientes ventas el martes 11 de agosto: golosinas por $ 600.
-lucas hizo las siguientes ventas el martes 18 de agosto: 2 bebidas no-alcohólicas y cigarrillos Derby.
-
-Queremos saber si una persona vendedora es suertuda, esto ocurre si para todos los días en los que vendió, la primera venta que hizo fue importante. Una venta es importante:
-en el caso de las golosinas, si supera los $ 100.
-en el caso de los cigarrillos, si tiene más de dos marcas.
-en el caso de las bebidas, si son alcohólicas o son más de 5.
+Queremos saber si una persona vendedora es suertuda, esto ocurre si para todos los días en los que vendió, la primera venta que hizo fue importante.
+Una venta es importante:
+    en el caso de las golosinas, si supera los $ 100.
+    en el caso de los cigarrillos, si tiene más de dos marcas.
+    en el caso de las bebidas, si son alcohólicas o son más de 5.
 
 El predicado debe ser inversible: martu y dodain son personas suertudas.
 
